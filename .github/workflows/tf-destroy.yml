@@ -30,4 +30,3 @@ on:
     # Destroy Environment
     - name: Terraform Destroy
       run: terraform destroy -auto-approve -no-color
-      working-directory: "./cicd-base-deployment/terraform/vmseries"
