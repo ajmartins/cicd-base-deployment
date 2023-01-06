@@ -38,6 +38,9 @@ jobs:
         run: terraform validate -no-color
 
       - name: Terraform Plan
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         id: plan
         if: github.event_name == 'push'
         run: terraform plan -no-color
@@ -65,10 +68,16 @@ jobs:
               body: output
             })
       - name: Terraform Plan Status
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
       - name: Terraform Apply
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         id: apply
         if: steps.plan.outcome == 'success'
         run: terraform apply -auto-approve
@@ -103,5 +112,8 @@ jobs:
             })
       
       - name: Terraform Destroy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         id: destroy
         run: terraform destroy -auto-approve
