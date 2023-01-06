@@ -101,3 +101,7 @@ jobs:
               commit_sha: context.sha,
               body: output
             })
+      
+      - name: Terraform Destroy
+        id: destroy
+        run: terraform destroy -auto-approve
