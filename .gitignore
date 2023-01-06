@@ -12,3 +12,6 @@
 
 # Crash log files
 crash.log
+
+**/.git/*
+*.git
