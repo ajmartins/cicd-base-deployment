@@ -1,7 +1,7 @@
 provider "aws" {}
 
 module "vulnerable-vpc" {
-    source           = "../modules/vpc"
+    source           = "./modules/vpc"
     vpc              = var.vulnerable-vpc
     prefix-name-tag  = var.prefix-name-tag
     subnets          = var.vulnerable-vpc-subnets
@@ -12,7 +12,7 @@ module "vulnerable-vpc" {
 }
 
 module "attack-vpc" {
-    source          = "../modules/vpc"
+    source          = "./modules/vpc"
     vpc             = var.attack-vpc
     prefix-name-tag = var.prefix-name-tag
     subnets         = var.attack-vpc-subnets
@@ -23,7 +23,7 @@ module "attack-vpc" {
 }
 
 module "security-vpc" {
-    source          = "../modules/vpc"
+    source          = "./modules/vpc"
     vpc             = var.security-vpc
     prefix-name-tag = var.prefix-name-tag
     subnets         = var.security-vpc-subnets
@@ -34,7 +34,7 @@ module "security-vpc" {
 }
 
 module "management-vpc" {
-  source          = "../modules/vpc"
+  source          = "./modules/vpc"
   vpc             = var.management-vpc
   prefix-name-tag = var.prefix-name-tag
   subnets         = var.management-vpc-subnets
@@ -44,7 +44,7 @@ module "management-vpc" {
 }
 
 module "panorama" {
-  source          = "../modules/panorama"
+  source          = "./modules/panorama"
   vpc-name        = module.management-vpc.vpc_name
   subnet-ids      = module.management-vpc.subnet_ids
   security-groups = module.management-vpc.security_groups
@@ -55,7 +55,7 @@ module "panorama" {
 }
 
 module "vm-series" {
-  source            = "../modules/vm-series"
+  source            = "./modules/vm-series"
   fw_product_code   = var.fw_product_code
   fw_version        = var.fw_version
   firewalls         = var.firewalls
@@ -80,7 +80,7 @@ locals {
 }
 
 module "gwlb" {
-  source                = "../modules/gwlb"
+  source                = "./modules/gwlb"
   gateway_load_balancer = var.gateway_load_balancer
   gateway_load_balancer_endpoints = var.gateway_load_balancer_endpoints
   firewall              = module.vm-series.firewall
@@ -92,7 +92,7 @@ module "gwlb" {
 }
 
 module "transit-gateway" {
-  source          = "../modules/transit-gateway"
+  source          = "./modules/transit-gateway"
   transit-gateway = var.transit-gateway
   prefix-name-tag = var.prefix-name-tag
   global_tags     = var.global_tags
@@ -102,7 +102,7 @@ module "transit-gateway" {
 }
 
 module "vpc-routes" {
-  source          = "../modules/vpc_routes"
+  source          = "./modules/vpc_routes"
   vpc-routes      = merge(var.vulnerable-vpc-routes, var.attack-vpc-routes, var.security-vpc-routes, var.management-vpc-routes)
   vpcs            = local.vpcs
   tgw-ids         = module.transit-gateway.tgw-ids
