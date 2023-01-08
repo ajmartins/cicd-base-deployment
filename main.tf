@@ -1,5 +1,6 @@
 provider "aws" {}
 
+
 module "vulnerable-vpc" {
     source           = "./modules/vpc"
     vpc              = var.vulnerable-vpc
