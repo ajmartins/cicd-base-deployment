@@ -7,7 +7,7 @@ on:
 
 jobs:
   terraform:
-    name: "Job plan, apply on dev then Create PR"
+    name: "Job plan, apply, destroy"
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -38,82 +38,74 @@ jobs:
         run: terraform validate -no-color
 
       - name: Terraform Plan
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         id: plan
         if: github.event_name == 'push'
         run: terraform plan -no-color
         continue-on-error: true
 
-      - uses: actions/github-script@v4.0.2
-        env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-        with:
-          github-token: ${{ secrets.PAC_TOKEN }}
-          script: |
-            const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-            <details><summary>Show Plan</summary>
-            \`\`\`\n
-            ${process.env.PLAN}
-            \`\`\`
-            </details>
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
-            github.repos.createCommitComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: context.sha,
-              body: output
-            })
+#Error: An error occurred trying to start process with working directory. Argument list too long
+      # - uses: actions/github-script@v4.0.2
+      #   env:
+      #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      #   with:
+      #     github-token: ${{ secrets.PAC_TOKEN }}
+      #     script: |
+      #       const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+      #       #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+      #       #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+      #       <details><summary>Show Plan</summary>
+      #       \`\`\`\n
+      #       ${process.env.PLAN}
+      #       \`\`\`
+      #       </details>
+      #       *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+      #       github.repos.createCommitComment({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         commit_sha: context.sha,
+      #         body: output
+      #       })
+
       - name: Terraform Plan Status
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         if: steps.plan.outcome == 'failure'
         run: exit 1
 
       - name: Terraform Apply
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         id: apply
         if: steps.plan.outcome == 'success'
         run: terraform apply -auto-approve
-
-      - name: CreatePR if apply succeed 
-        id: createpr
-        uses: actions/github-script@v4.0.2
-        if: steps.apply.outcome == 'success'
-        with:
-          debug: true
-          github-token: ${{ secrets.PAC_TOKEN }}
-          script: |
-            github.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: "Auto PR generate by Github Action dev pipeline",
-              head: "dev",
-              base: "main"
-            });
-      - name: Revert commit if any step failed
-        uses: actions/github-script@v4.0.2
-        if: ${{ failure() || cancelled() }}
-        with:
-          github-token: ${{ secrets.PAC_TOKEN }}
-          script: |
-            const output = `Test for this commit has failed `${{ steps.createpr.outcomei }}``;
-            github.repos.createCommitComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: context.sha,
-              body: output
-            })
-      
+        
       - name: Terraform Destroy
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         id: destroy
         run: terraform destroy -auto-approve
+
+
+      # - name: CreatePR if apply succeed 
+      #   id: createpr
+      #   uses: actions/github-script@v4.0.2
+      #   if: steps.apply.outcome == 'success'
+      #   with:
+      #     debug: true
+      #     github-token: ${{ secrets.PAC_TOKEN }}
+      #     script: |
+      #       github.pulls.create({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         title: "Auto PR generate by Github Action dev pipeline",
+      #         head: "dev",
+      #         base: "main"
+      #       });
+      # - name: Revert commit if any step failed
+      #   uses: actions/github-script@v4.0.2
+      #   if: ${{ failure() || cancelled() }}
+      #   with:
+      #     github-token: ${{ secrets.PAC_TOKEN }}
+      #     script: |
+      #       const output = `Test for this commit has failed `${{ steps.createpr.outcomei }}``;
+      #       github.repos.createCommitComment({
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         commit_sha: context.sha,
+      #         body: output
+      #       })
+      
