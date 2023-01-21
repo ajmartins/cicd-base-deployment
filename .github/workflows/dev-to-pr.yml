@@ -77,8 +77,9 @@ jobs:
       - name: Terraform Apply
         id: apply
         working-directory: ./security_stack
-        run: pip3 install --upgrade -r requirements.txt
-        run: terraform apply -auto-approve
+        run: | 
+         pip3 install --upgrade -r requirements.txt
+         terraform apply -auto-approve
         
       - name: Terraform Destroy
         id: destroy
