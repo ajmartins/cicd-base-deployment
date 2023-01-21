@@ -32,7 +32,8 @@ jobs:
 
       - name: Terraform Workspace
         id: workspace
-        run: terraform workspace new $TF_WORKSPACE
+        working-directory: ./security_stack
+        run: terraform workspace select dev
       
       - name: Terraform Validate
         id: validate
