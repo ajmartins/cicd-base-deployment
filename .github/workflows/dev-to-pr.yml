@@ -9,6 +9,7 @@ jobs:
   terraform:
     name: "Job plan, apply, destroy"
     runs-on: ubuntu-latest
+    working-directory: "./cicd-base-deployment/security_stack"
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
