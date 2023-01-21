@@ -25,7 +25,7 @@ jobs:
 
       - name: Terraform Init
         id: init
-        working-directory: "./cicd-base-deployment/security_stack"
+        working-directory: ./cicd-base-deployment/security_stack
         run: terraform init
         env:
           TF_WORKSPACE: "dev"
@@ -41,7 +41,7 @@ jobs:
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'push'
-        working-directory: "./cicd-base-deployment/security_stack"
+        working-directory: ./cicd-base-deployment/security_stack
         run: terraform plan -no-color
         continue-on-error: true
 
@@ -74,12 +74,12 @@ jobs:
 
       - name: Terraform Apply
         id: apply
-        working-directory: "./cicd-base-deployment/security_stack"
+        working-directory: ./cicd-base-deployment/security_stack
         run: terraform apply -auto-approve
         
       - name: Terraform Destroy
         id: destroy
-        working-directory: "./cicd-base-deployment/security_stack"
+        working-directory: ./cicd-base-deployment/security_stack
         run: terraform destroy -auto-approve
 
 
