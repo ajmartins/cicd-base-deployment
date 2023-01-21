@@ -32,10 +32,11 @@ jobs:
 
       - name: Terraform Workspace
         id: workspace
-        run: terraform workspace select dev
+        run: terraform workspace select $TF_WORKSPACE || terraform workspace new $TF_WORKSPACE
       
       - name: Terraform Validate
         id: validate
+        working-directory: ./security_stack
         run: terraform validate -no-color
 
       - name: Terraform Plan
