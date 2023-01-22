@@ -47,9 +47,14 @@ resource "null_resource" "handoff-state-json" {
 
 # ---------------------------------------------------------------------------------------------------------------------
 
+
+
 resource "null_resource" "gateway-load-balancer" {
   provisioner "local-exec" {
     command = "pip3 install --upgrade -r requirements.txt"
+  }
+  provisioner "local-exec" {
+    command = "pip3 install boto3"
   }
   provisioner "local-exec" {
     command = "python3 gwlb.py create"
