@@ -58,7 +58,7 @@ resource "null_resource" "gateway-load-balancer" {
   provisioner "local-exec" {
     when = destroy
     command = <<EOT
-     "pip3 install --upgrade -r requirements.txt"
+     "pip3 install --upgrade boto3 python-dateutil awscli"
      "python3 gwlb.py destroy"
     EOT
   }
