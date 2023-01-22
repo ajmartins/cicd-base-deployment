@@ -56,7 +56,10 @@ resource "null_resource" "gateway-load-balancer" {
   }
   provisioner "local-exec" {
     when = destroy
-    command = "python3 gwlb.py destroy"
+    command = <<EOT
+     "pip3 install --upgrade -r requirements.txt"
+     "python3 gwlb.py destroy"
+    EOT
   }
   depends_on = [null_resource.handoff-state-json, aws_instance.firewall_instance]
 }
