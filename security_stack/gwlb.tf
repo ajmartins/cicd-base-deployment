@@ -47,7 +47,6 @@ resource "null_resource" "handoff-state-json" {
 
 # ---------------------------------------------------------------------------------------------------------------------
 
-
 resource "null_resource" "gateway-load-balancer" {
   provisioner "local-exec" {
     command = "pip3 install --upgrade -r requirements.txt"
@@ -57,10 +56,7 @@ resource "null_resource" "gateway-load-balancer" {
   }
   provisioner "local-exec" {
     when = destroy
-    command = <<-EOT
-     exec "pip3 install --upgrade boto3 python-dateutil awscli"
-     exec "python3 gwlb.py destroy"
-    EOT
+    command = "pip3 install boto3 python-dateutil awscli"
   }
   depends_on = [null_resource.handoff-state-json, aws_instance.firewall_instance]
 }
