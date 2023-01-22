@@ -47,6 +47,7 @@ resource "null_resource" "handoff-state-json" {
 
 # ---------------------------------------------------------------------------------------------------------------------
 
+
 resource "null_resource" "gateway-load-balancer" {
   provisioner "local-exec" {
     command = "pip3 install --upgrade -r requirements.txt"
