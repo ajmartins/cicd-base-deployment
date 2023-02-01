@@ -62,7 +62,6 @@ jobs:
         sarif_file: results.sarif
         category: checkov
 
-
     - name: Terraform Plan
       id: plan
       if: github.event_name == 'push'
@@ -92,19 +91,19 @@ jobs:
       #         body: output
       #       })
 
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
+    - name: Terraform Plan Status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
 
-      - name: Terraform Apply
-        id: apply
-        working-directory: ./panorama
-        run: terraform apply -auto-approve
+    - name: Terraform Apply
+      id: apply
+      working-directory: ./panorama
+      run: terraform apply -auto-approve
         
-      - name: Terraform Destroy
-        id: destroy
-        working-directory: ./panorama
-        run: terraform destroy -auto-approve
+    - name: Terraform Destroy
+      id: destroy
+      working-directory: ./panorama
+      run: terraform destroy -auto-approve
 
 
       # - name: CreatePR if apply succeed 
