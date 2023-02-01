@@ -1,4 +1,4 @@
-name: "Dev pipeline"
+name: 'Dev Pipeline - Panorama Deployment'
 
 on:
   push:
@@ -7,47 +7,69 @@ on:
 
 jobs:
   terraform:
-    name: "Job plan, apply, destroy"
+    name: 'Dev Pipeline - Panorama Deployment'
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      
+    
     steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v3
 
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
           cli_config_credentials_token: ${{ secrets.TF_TOKEN }}
 
-      - name: Terraform Init
-        id: init
-        working-directory: ./security_stack
-        run: terraform init
-        env:
-          TF_WORKSPACE: "dev"
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      id: init
+      working-directory: ./panorama
+      run: terraform init
+      env:
+        TF_WORKSPACE: "dev"
+    
+    - name: Terraform Workspace
+      id: workspace
+      working-directory: ./panorama
+      run: terraform workspace select dev
 
-      - name: Terraform Workspace
-        id: workspace
-        working-directory: ./security_stack
-        run: terraform workspace select dev
-      
-      - name: Terraform Validate
-        id: validate
-        working-directory: ./security_stack
-        run: terraform validate -no-color
+    # Validate terraform files
+    - name: Terraform Validate
+      id: validate
+      working-directory: ./panorama
+      run: terraform validate -no-color
 
-      - name: Terraform Plan
-        id: plan
-        if: github.event_name == 'push'
-        working-directory: ./security_stack
-        run: terraform plan -no-color
-        continue-on-error: true
+    # Checks that all Terraform configuration files adhere to a canonical format
+    - name: Terraform Format
+      run: terraform fmt -check -recursive
+    
+    # Perform a security scan of the terraform code using checkov
+    - name: Run Checkov action
+      id: checkov
+      uses: bridgecrewio/checkov-action@master
+      with: 
+        framework: terraform
 
-#Error: An error occurred trying to start process with working directory. Argument list too long
+    # Upload results to GitHub Advanced Security
+    - name: Upload SARIF file
+      if: success() || failure()
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: results.sarif
+        category: checkov
+
+
+    - name: Terraform Plan
+      id: plan
+      if: github.event_name == 'push'
+      working-directory: ./panorama
+      run: terraform plan -no-color
+      continue-on-error: true
+
       # - uses: actions/github-script@v4.0.2
       #   env:
       #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
@@ -76,14 +98,12 @@ jobs:
 
       - name: Terraform Apply
         id: apply
-        working-directory: ./security_stack
-        run: | 
-         pip3 install --upgrade -r requirements.txt
-         terraform apply -auto-approve
+        working-directory: ./panorama
+        run: terraform apply -auto-approve
         
       - name: Terraform Destroy
         id: destroy
-        working-directory: ./security_stack
+        working-directory: ./panorama
         run: terraform destroy -auto-approve
 
 
@@ -115,4 +135,3 @@ jobs:
       #         commit_sha: context.sha,
       #         body: output
       #       })
-      
