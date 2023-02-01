@@ -28,7 +28,7 @@ data "aws_kms_alias" "current_arn" {
 ### Module calls for app2 VPC
 
 module "management_vpc" {
-  source           = "./modules/vpc"
+  source           = "./modules/vpc/"
   global_tags      = var.global_tags
   region           = var.region
   prefix_name_tag  = var.prefix_name_tag
@@ -40,7 +40,7 @@ module "management_vpc" {
 }
 
 module "management_vpc_routes" {
-  source            = "./modules/vpc_routes"
+  source            = "./modules/vpc_routes/"
   region            = var.region
   global_tags       = var.global_tags
   prefix_name_tag   = var.prefix_name_tag
@@ -52,7 +52,7 @@ module "management_vpc_routes" {
 }
 
 module "management_transit_gateways" {
-  source                          = "./modules/transit_gateway"
+  source                          = "./modules/transit_gateway/"
   global_tags                     = var.global_tags
   prefix_name_tag                 = var.prefix_name_tag
   subnets                         = module.management_vpc.subnet_ids
@@ -62,7 +62,7 @@ module "management_transit_gateways" {
 }
 
 module "panorama" {
-  source = "./modules/panorama"
+  source = "./modules/panorama/"
 
   availability_zone      = var.panorama_az
   panorama_ami_id        = var.panorama_ami_id
