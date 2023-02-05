@@ -136,9 +136,10 @@ jobs:
           })
           
     # Perform a security scan of the terraform code using checkov
-    - name: Run Checkov action
-      id: checkov
-      working-directory: ./config
-      uses: bridgecrewio/bridgecrew-action@master 
-      with:
-        api-key: ${{ secrets.BC_API_KEY }}
+    #- name: Run Checkov action
+    #  id: checkov
+    #  working-directory: ./config
+      #ERROR: The workflow is not valid. .github/workflows/dev-to-pr.yml (Line: 142, Col: 7): Unexpected value 'uses' .github/workflows/dev-to-pr.yml (Line: 143, Col: 7): Unexpected value 'with'
+    #  uses: bridgecrewio/bridgecrew-action@master 
+    #  with:
+    #    api-key: ${{ secrets.BC_API_KEY }}
