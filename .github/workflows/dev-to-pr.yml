@@ -27,20 +27,20 @@ jobs:
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
       id: init
-      working-directory: ./terraform/panorama
+      #working-directory: ./terraform/panorama
       run: terraform init
       env:
         TF_WORKSPACE: "dev"
     
     - name: Terraform Workspace
       id: workspace
-      working-directory: ./terraform/panorama
+      #working-directory: ./terraform/panorama
       run: terraform workspace select dev
 
     # Validate terraform files
     - name: Terraform Validate
       id: validate
-      working-directory: ./terraform/panorama
+      #working-directory: ./terraform/panorama
       run: terraform validate -no-color
 
     # Checks that all Terraform configuration files adhere to a canonical format.
@@ -65,7 +65,7 @@ jobs:
     - name: Terraform Plan
       id: plan
       if: github.event_name == 'push'
-      working-directory: ./terraform/panorama
+      #working-directory: ./terraform/panorama
       run: terraform plan -no-color
       continue-on-error: true
 
@@ -97,40 +97,49 @@ jobs:
 
     - name: Terraform Apply
       id: apply
-      working-directory: ./terraform/panorama
+      #working-directory: ./terraform/panorama
       run: terraform apply -auto-approve
         
-    - name: Terraform Destroy
-      id: destroy
-      working-directory: ./terraform/panorama
-      run: terraform destroy -auto-approve
+    #- name: Terraform Destroy
+    #  id: destroy
+      #working-directory: ./terraform/panorama
+    #  run: terraform destroy -auto-approve
 
 
-      # - name: CreatePR if apply succeed 
-      #   id: createpr
-      #   uses: actions/github-script@v4.0.2
-      #   if: steps.apply.outcome == 'success'
-      #   with:
-      #     debug: true
-      #     github-token: ${{ secrets.PAC_TOKEN }}
-      #     script: |
-      #       github.pulls.create({
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         title: "Auto PR generate by Github Action dev pipeline",
-      #         head: "dev",
-      #         base: "main"
-      #       });
-      # - name: Revert commit if any step failed
-      #   uses: actions/github-script@v4.0.2
-      #   if: ${{ failure() || cancelled() }}
-      #   with:
-      #     github-token: ${{ secrets.PAC_TOKEN }}
-      #     script: |
-      #       const output = `Test for this commit has failed `${{ steps.createpr.outcomei }}``;
-      #       github.repos.createCommitComment({
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         commit_sha: context.sha,
-      #         body: output
-      #       })
+    - name: CreatePR if apply succeed 
+      id: createpr
+      uses: actions/github-script@v4.0.2
+      if: steps.apply.outcome == 'success'
+      with:
+        debug: true
+        github-token: ${{ secrets.PAC_TOKEN }}
+        script: |
+          github.pulls.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: "Auto PR generate by Github Action dev pipeline",
+            head: "dev",
+            base: "main"
+          });
+    - name: Revert commit if any step failed
+      uses: actions/github-script@v4.0.2
+      if: ${{ failure() || cancelled() }}
+      with:
+        github-token: ${{ secrets.PAC_TOKEN }}
+        script: |
+          const output = `Test for this commit has failed `${{ steps.createpr.outcomei }}``;
+          github.repos.createCommitComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            commit_sha: context.sha,
+            body: output
+          })
+          
+    # Perform a security scan of the terraform code using checkov
+    #- name: Run Checkov action
+    #  id: checkov
+    #  working-directory: ./config
+      #ERROR: The workflow is not valid. .github/workflows/dev-to-pr.yml (Line: 142, Col: 7): Unexpected value 'uses' .github/workflows/dev-to-pr.yml (Line: 143, Col: 7): Unexpected value 'with'
+    #  uses: bridgecrewio/bridgecrew-action@master 
+    #  with:
+    #    api-key: ${{ secrets.BC_API_KEY }}
