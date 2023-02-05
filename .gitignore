@@ -8,6 +8,7 @@
 
 # .tfstate files
 *.tfvars
+*.tfvar
 *.tfstate
 *.tfstate.*
 
