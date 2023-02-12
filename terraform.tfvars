@@ -120,7 +120,7 @@ panorama_create_iam_role             = true
 
 ## Panorama
 panorama_ssh_key_name     = "qwikLABS*"
-panorama_ami_id           = "ami-0c927bdf880746a61"
+panorama_ami_id           = "ami-00caee86e20b793dc"
 panorama_az               = "us-west-2a"
 private_ip_address        = "192.168.10.10"
 panorama_create_public_ip = true
